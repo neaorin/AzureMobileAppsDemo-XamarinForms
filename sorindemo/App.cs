@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using Xamarin.Forms;
 
@@ -6,7 +7,14 @@ namespace sorindemo
 {
 	public class App : Application
 	{
-		public App ()
+        public static IAuthenticate Authenticator { get; private set; }
+
+        public static void Init(IAuthenticate authenticator)
+        {
+            Authenticator = authenticator;
+        }
+
+        public App ()
 		{
 			// The root page of your application
 			MainPage = new TodoList();
@@ -27,5 +35,10 @@ namespace sorindemo
 			// Handle when your app resumes
 		}
 	}
+
+    public interface IAuthenticate
+    {
+        Task<bool> Authenticate();
+    };
 }
 

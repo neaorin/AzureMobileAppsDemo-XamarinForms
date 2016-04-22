@@ -1,4 +1,5 @@
 ﻿#define NOTIFICATIONS_ENABLED
+#define AUTH_ENABLED
 
 using System;
 using Android.App;
@@ -14,6 +15,8 @@ using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Microsoft.WindowsAzure.MobileServices;
+using System.Threading.Tasks;
+using System.Net.Http;
 
 #if NOTIFICATIONS_ENABLED
 using Gcm.Client;
@@ -34,7 +37,7 @@ namespace sorindemo.Droid
         MainLauncher = true,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
         Theme = "@android:style/Theme.Holo.Light")]
-    public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsApplicationActivity
+    public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsApplicationActivity, IAuthenticate
     {
         protected override void OnCreate(Bundle bundle)
         {
@@ -43,6 +46,9 @@ namespace sorindemo.Droid
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
             Microsoft.WindowsAzure.MobileServices.CurrentPlatform.Init();
+#if AUTH_ENABLED
+            App.Init(this);
+#endif
             LoadApplication(new App());
 
 #if NOTIFICATIONS_ENABLED
@@ -74,6 +80,32 @@ namespace sorindemo.Droid
             builder.SetMessage(message);
             builder.SetTitle(title);
             builder.Create().Show();
+        }
+
+        // Define a authenticated user.
+        private MobileServiceUser user;
+
+        public async Task<bool> Authenticate()
+        {
+            var success = false;
+            try
+            {
+                user = await TodoItemManager.DefaultManager.CurrentClient.LoginAsync(this,
+                    MobileServiceAuthenticationProvider.Facebook);
+
+                var userInfo = await TodoItemManager.DefaultManager.CurrentClient.InvokeApiAsync(
+                    "userdata", HttpMethod.Get, null);
+
+                CreateAndShowDialog(string.Format("{0}, you are now logged in!",
+                    userInfo["facebook"]["user_claims"][3]["val"]), "Logged in!");
+
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                CreateAndShowDialog(ex.Message, "Authentication failed");
+            }
+            return success;
         }
 
         // Create a new instance field for this activity.

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define AUTH_ENABLED
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Xamarin.Forms;
@@ -8,12 +9,30 @@ namespace sorindemo
     public partial class TodoList : ContentPage
     {
         TodoItemManager manager;
+        bool authenticated = false;
 
         public TodoList()
         {
             InitializeComponent();
 
             manager = TodoItemManager.DefaultManager;
+
+#if AUTH_ENABLED
+            var loginButton = new Button
+            {
+                Text = "Login",
+                TextColor = Xamarin.Forms.Color.Black,
+                BackgroundColor = Xamarin.Forms.Color.Lime,
+            };
+            loginButton.Clicked += loginButton_Clicked;
+
+            Xamarin.Forms.StackLayout bp = buttonsPanel as StackLayout;
+            Xamarin.Forms.StackLayout bpParentStack = bp.Parent.Parent as StackLayout;
+
+            bpParentStack.Padding = new Xamarin.Forms.Thickness(10, 30, 10, 20);
+            bp.Orientation = StackOrientation.Vertical;
+            bp.Children.Add(loginButton);
+#endif
 
             // OnPlatform<T> doesn't currently support the "Windows" target platform, so we have this check here.
             if (manager.IsOfflineEnabled &&
@@ -35,7 +54,10 @@ namespace sorindemo
             base.OnAppearing();
 
             // Set syncItems to true in order to synchronize the data on startup when running in offline mode
-            await RefreshItems(true, syncItems: false);
+#if AUTH_ENABLED
+            if (authenticated == true)
+#endif
+                await RefreshItems(true, syncItems: false);
         }
 
         // Data methods
@@ -146,6 +168,18 @@ namespace sorindemo
                 todoList.ItemsSource = await manager.GetTodoItemsAsync(syncItems);
             }
         }
+
+#if AUTH_ENABLED
+        async void loginButton_Clicked(object sender, EventArgs e)
+        {
+            if (App.Authenticator != null)
+                authenticated = await App.Authenticator.Authenticate();
+
+            // Set syncItems to true in order to synchronize the data on startup when running in offline mode
+            if (authenticated == true)
+                await RefreshItems(true, syncItems: false);
+        }
+#endif
 
         private class ActivityIndicatorScope : IDisposable
         {
