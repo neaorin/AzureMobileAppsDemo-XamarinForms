@@ -1,8 +1,12 @@
-﻿using System;
+﻿using Microsoft.WindowsAzure.MobileServices;
+using sorindemo;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -20,7 +24,7 @@ namespace WinPhone81
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainPage 
+    public sealed partial class MainPage : IAuthenticate
     {
         public MainPage()
         {
@@ -45,6 +49,12 @@ namespace WinPhone81
             // Windows.Phone.UI.Input.HardwareButtons.BackPressed event.
             // If you are using the NavigationHelper provided by some templates,
             // this event is handled for you.
+        }
+
+        public async Task<MobileServiceUser> Authenticate(MobileServiceAuthenticationProvider provider)
+        {
+            var user = await TodoItemManager.DefaultManager.CurrentClient.LoginAsync(provider);
+            return user;
         }
     }
 }

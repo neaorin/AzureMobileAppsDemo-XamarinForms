@@ -82,30 +82,10 @@ namespace sorindemo.Droid
             builder.Create().Show();
         }
 
-        // Define a authenticated user.
-        private MobileServiceUser user;
-
-        public async Task<bool> Authenticate()
+        public async Task<MobileServiceUser> Authenticate(MobileServiceAuthenticationProvider provider)
         {
-            var success = false;
-            try
-            {
-                user = await TodoItemManager.DefaultManager.CurrentClient.LoginAsync(this,
-                    MobileServiceAuthenticationProvider.Facebook);
-
-                var userInfo = await TodoItemManager.DefaultManager.CurrentClient.InvokeApiAsync(
-                    "userdata", HttpMethod.Get, null);
-
-                CreateAndShowDialog(string.Format("{0}, you are now logged in!",
-                    userInfo["facebook"]["user_claims"][3]["val"]), "Logged in!");
-
-                success = true;
-            }
-            catch (Exception ex)
-            {
-                CreateAndShowDialog(ex.Message, "Authentication failed");
-            }
-            return success;
+            var user = await TodoItemManager.DefaultManager.CurrentClient.LoginAsync(this, provider);
+            return user;
         }
 
         // Create a new instance field for this activity.

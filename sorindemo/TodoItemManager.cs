@@ -1,7 +1,3 @@
-// To add offline sync support: add the NuGet package WindowsAzure.MobileServices.SQLiteStore
-// to all projects in the solution and uncomment the symbol definition OFFLINE_SYNC_ENABLED
-// For Xamarin.iOS, also edit AppDelegate.cs and uncomment the call to SQLitePCL.CurrentPlatform.Init()
-// For more information, see: http://go.microsoft.com/fwlink/?LinkId=620342 
 #define OFFLINE_SYNC_ENABLED
 
 using System;
@@ -71,6 +67,8 @@ namespace sorindemo
         {
             get { return todoTable is Microsoft.WindowsAzure.MobileServices.Sync.IMobileServiceSyncTable<TodoItem>; }
         }
+
+        public User UserInfo { get; set; }
 
         public async Task<ObservableCollection<TodoItem>> GetTodoItemsAsync(bool syncItems = false)
         {
@@ -157,6 +155,7 @@ namespace sorindemo
                 }
             }
         }
+
 #endif
     }
 }

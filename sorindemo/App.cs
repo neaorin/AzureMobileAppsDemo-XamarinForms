@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.WindowsAzure.MobileServices;
+using System;
 using System.Threading.Tasks;
 
 using Xamarin.Forms;
@@ -38,7 +39,17 @@ namespace sorindemo
 
     public interface IAuthenticate
     {
-        Task<bool> Authenticate();
+        Task<MobileServiceUser> Authenticate(MobileServiceAuthenticationProvider provider);
     };
+
+    public interface IDisplayAlert
+    {
+        void DisplayAlert(string title, string message);
+    }
+
+    public class User
+    {
+        public string FullName { get; set; }
+    }
 }
 

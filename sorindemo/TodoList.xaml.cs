@@ -1,7 +1,9 @@
 ﻿#define AUTH_ENABLED
+using Microsoft.WindowsAzure.MobileServices;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Windows.UI.Popups;
 using Xamarin.Forms;
 
 namespace sorindemo
@@ -9,7 +11,7 @@ namespace sorindemo
     public partial class TodoList : ContentPage
     {
         TodoItemManager manager;
-        bool authenticated = false;
+        bool IsAuthenticated { get { return TodoItemManager.DefaultManager.CurrentClient.CurrentUser != null; } }
 
         public TodoList()
         {
@@ -17,22 +19,22 @@ namespace sorindemo
 
             manager = TodoItemManager.DefaultManager;
 
-#if AUTH_ENABLED
-            var loginButton = new Button
-            {
-                Text = "Login",
-                TextColor = Xamarin.Forms.Color.Black,
-                BackgroundColor = Xamarin.Forms.Color.Lime,
-            };
-            loginButton.Clicked += loginButton_Clicked;
+//#if AUTH_ENABLED
+//            var loginButton = new Button
+//            {
+//                Text = "Login",
+//                TextColor = Xamarin.Forms.Color.Black,
+//                BackgroundColor = Xamarin.Forms.Color.Lime,
+//            };
+//            loginButton.Clicked += loginButton_Clicked;
 
-            Xamarin.Forms.StackLayout bp = buttonsPanel as StackLayout;
-            Xamarin.Forms.StackLayout bpParentStack = bp.Parent.Parent as StackLayout;
+//            Xamarin.Forms.StackLayout bp = buttonsPanel as StackLayout;
+//            Xamarin.Forms.StackLayout bpParentStack = bp.Parent.Parent as StackLayout;
 
-            bpParentStack.Padding = new Xamarin.Forms.Thickness(10, 30, 10, 20);
-            bp.Orientation = StackOrientation.Vertical;
-            bp.Children.Add(loginButton);
-#endif
+//            bpParentStack.Padding = new Xamarin.Forms.Thickness(10, 30, 10, 20);
+//            bp.Orientation = StackOrientation.Vertical;
+//            bp.Children.Add(loginButton);
+//#endif
 
             // OnPlatform<T> doesn't currently support the "Windows" target platform, so we have this check here.
             if (manager.IsOfflineEnabled &&
@@ -55,7 +57,7 @@ namespace sorindemo
 
             // Set syncItems to true in order to synchronize the data on startup when running in offline mode
 #if AUTH_ENABLED
-            if (authenticated == true)
+            if (IsAuthenticated)
 #endif
                 await RefreshItems(true, syncItems: false);
         }
@@ -169,14 +171,51 @@ namespace sorindemo
             }
         }
 
+        //private async Task ResolveConflict(TodoItem localItem, TodoItem serverItem)
+        //{
+        //    //Ask user to choose the resolution between versions
+        //    MessageDialog msgDialog = new MessageDialog(String.Format("Server Name: \"{0}\" \nLocal Name: \"{1}\"\n",
+        //                                                serverItem.Name, localItem.Name),
+        //                                                "CONFLICT DETECTED - Select a resolution:");
+        //    UICommand localBtn = new UICommand("Commit Local Text");
+        //    UICommand ServerBtn = new UICommand("Leave Server Text");
+        //    msgDialog.Commands.Add(localBtn);
+        //    msgDialog.Commands.Add(ServerBtn);
+        //    //localBtn.Invoked = async (IUICommand command) =>
+        //    //{
+        //    //    // To resolve the conflict, update the version of the
+        //    //    // item being committed. Otherwise, you will keep
+        //    //    // catching a MobileServicePreConditionFailedException.
+        //    //    //localItem.Version = serverItem.Version;
+        //    //    // Updating recursively here just in case another
+        //    //    // change happened while the user was making a decision
+        //    //    //await UpdateToDoItem(localItem);
+        //    //};
+        //    //ServerBtn.Invoked = async (IUICommand command) =>
+        //    //{
+        //    //    //RefreshTodoItems();
+        //    //};
+        //    await msgDialog.ShowAsync();
+        //}
+
 #if AUTH_ENABLED
         async void loginButton_Clicked(object sender, EventArgs e)
         {
+            var provider = MobileServiceAuthenticationProvider.MicrosoftAccount;
+
+            switch ((sender as Button).CommandParameter.ToString())
+            {
+                case "loginFacebook": provider = MobileServiceAuthenticationProvider.Facebook; break;
+                case "loginGoogle": provider = MobileServiceAuthenticationProvider.Google; break;
+                case "loginMicrosoft": provider = MobileServiceAuthenticationProvider.MicrosoftAccount; break;
+                case "loginTwitter": provider = MobileServiceAuthenticationProvider.Twitter; break;
+                case "loginAzureAd": provider = MobileServiceAuthenticationProvider.WindowsAzureActiveDirectory; break;
+            }
             if (App.Authenticator != null)
-                authenticated = await App.Authenticator.Authenticate();
+                await App.Authenticator.Authenticate(provider);
 
             // Set syncItems to true in order to synchronize the data on startup when running in offline mode
-            if (authenticated == true)
+            if (IsAuthenticated)
                 await RefreshItems(true, syncItems: false);
         }
 #endif

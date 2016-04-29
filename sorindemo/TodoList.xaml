@@ -27,6 +27,12 @@
           <Button Text="+"
                   MinimumHeightRequest="30"
                   Clicked="OnAdd" />
+
+          <Button x:Name="loginFacebook" Text="FB" Clicked="loginButton_Clicked" CommandParameter="loginFacebook"/>
+          <Button x:Name="loginGoogle" Text="G" Clicked="loginButton_Clicked" CommandParameter="loginGoogle"/>
+          <Button x:Name="loginMicrosoft" Text="MS" Clicked="loginButton_Clicked" CommandParameter="loginMicrosoft" />
+          <Button x:Name="loginTwitter" Text="TW" Clicked="loginButton_Clicked" CommandParameter="loginTwitter"/>
+          <Button x:Name="loginAzureAd" Text="AD" Clicked="loginButton_Clicked" CommandParameter="loginAzureAd"/>
         </StackLayout>
       </Grid>
     </StackLayout>
