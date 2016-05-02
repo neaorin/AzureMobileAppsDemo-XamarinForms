@@ -1,4 +1,5 @@
 ﻿using Microsoft.WindowsAzure.MobileServices;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Threading.Tasks;
 
@@ -50,6 +51,21 @@ namespace sorindemo
     public class User
     {
         public string FullName { get; set; }
+
+        public static User GetUserInfo(JToken userdata, MobileServiceAuthenticationProvider provider)
+        {
+            var user = new User();
+
+            switch (provider)
+            {
+                case MobileServiceAuthenticationProvider.Facebook: user.FullName = userdata["facebook"]["user_id"].ToString(); break;
+                case MobileServiceAuthenticationProvider.Google: user.FullName = userdata["google"]["user_id"].ToString(); break;
+                case MobileServiceAuthenticationProvider.MicrosoftAccount: user.FullName = userdata["microsoftaccount"]["user_id"].ToString(); break;
+                case MobileServiceAuthenticationProvider.Twitter: user.FullName = userdata["twitter"]["user_id"].ToString(); break;
+                case MobileServiceAuthenticationProvider.WindowsAzureActiveDirectory: user.FullName = userdata["aad"]["user_id"].ToString(); break;
+            }
+            return user;
+        }
     }
 }
 

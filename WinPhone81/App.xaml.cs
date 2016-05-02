@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.WindowsAzure.MobileServices;
+using sorindemo;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -122,6 +124,17 @@ namespace WinPhone81
 
             // TODO: Save application state and stop any background activity
             deferral.Complete();
+        }
+
+        protected override void OnActivated(IActivatedEventArgs args)
+        {
+            base.OnActivated(args);
+
+            if (args.Kind == ActivationKind.WebAuthenticationBrokerContinuation)
+            {
+                var client = TodoItemManager.DefaultManager.CurrentClient as MobileServiceClient;
+                client.LoginComplete(args as WebAuthenticationBrokerContinuationEventArgs);
+            }
         }
     }
 }

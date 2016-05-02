@@ -1,7 +1,9 @@
 ﻿#define AUTH_ENABLED
 using Microsoft.WindowsAzure.MobileServices;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Windows.UI.Popups;
 using Xamarin.Forms;
@@ -40,14 +42,7 @@ namespace sorindemo
             if (manager.IsOfflineEnabled &&
                 (Device.OS == TargetPlatform.Windows || Device.OS == TargetPlatform.WinPhone))
             {
-                var syncButton = new Button
-                {
-                    Text = "Sync items",
-                    HeightRequest = 30
-                };
-                syncButton.Clicked += OnSyncItems;
-
-                buttonsPanel.Children.Add(syncButton);
+                syncButton.IsVisible = true;
             }
         }
 
@@ -199,24 +194,41 @@ namespace sorindemo
         //}
 
 #if AUTH_ENABLED
-        async void loginButton_Clicked(object sender, EventArgs e)
+        async void OnLogin(object sender, EventArgs e)
         {
-            var provider = MobileServiceAuthenticationProvider.MicrosoftAccount;
-
-            switch ((sender as Button).CommandParameter.ToString())
+            try
             {
-                case "loginFacebook": provider = MobileServiceAuthenticationProvider.Facebook; break;
-                case "loginGoogle": provider = MobileServiceAuthenticationProvider.Google; break;
-                case "loginMicrosoft": provider = MobileServiceAuthenticationProvider.MicrosoftAccount; break;
-                case "loginTwitter": provider = MobileServiceAuthenticationProvider.Twitter; break;
-                case "loginAzureAd": provider = MobileServiceAuthenticationProvider.WindowsAzureActiveDirectory; break;
-            }
-            if (App.Authenticator != null)
-                await App.Authenticator.Authenticate(provider);
+                var providerString = await DisplayActionSheet("Login With", "Cancel", null, "Facebook", "Google", "Microsoft Account", "Twitter", "Azure AD");
+                var provider = MobileServiceAuthenticationProvider.MicrosoftAccount;
 
-            // Set syncItems to true in order to synchronize the data on startup when running in offline mode
-            if (IsAuthenticated)
-                await RefreshItems(true, syncItems: false);
+                switch (providerString)
+                {
+                    case "Facebook": provider = MobileServiceAuthenticationProvider.Facebook; break;
+                    case "Google": provider = MobileServiceAuthenticationProvider.Google; break;
+                    case "Microsoft Account": provider = MobileServiceAuthenticationProvider.MicrosoftAccount; break;
+                    case "Twitter": provider = MobileServiceAuthenticationProvider.Twitter; break;
+                    case "Azure AD": provider = MobileServiceAuthenticationProvider.WindowsAzureActiveDirectory; break;
+                    default:
+                        return;
+                }
+                if (App.Authenticator != null)
+                    await App.Authenticator.Authenticate(provider);
+
+                // Set syncItems to true in order to synchronize the data on startup when running in offline mode
+                if (IsAuthenticated)
+                {
+                    var userdata = await TodoItemManager.DefaultManager.CurrentClient.InvokeApiAsync("userdata", HttpMethod.Get ,null);
+                    var user = User.GetUserInfo(userdata, provider);
+                    await DisplayAlert("Authenticated", $"{user.FullName} is logged in.", "OK");
+                    labelUser.Text = user.FullName;
+                    login.IsVisible = false;
+                    await RefreshItems(true, syncItems: false);
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Authentication failed", ex.Message, "OK");
+            }
         }
 #endif
 
