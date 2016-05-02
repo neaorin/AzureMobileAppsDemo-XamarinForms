@@ -1,14 +1,17 @@
 ﻿using Microsoft.WindowsAzure.MobileServices;
+using Newtonsoft.Json.Linq;
 using sorindemo;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Networking.PushNotifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -45,8 +48,9 @@ namespace WinPhone81
         /// search results, and so forth.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
+            await InitNotificationsAsync();
 
             Frame rootFrame = Window.Current.Content as Frame;
 
@@ -136,5 +140,26 @@ namespace WinPhone81
                 client.LoginComplete(args as WebAuthenticationBrokerContinuationEventArgs);
             }
         }
+
+        private async Task InitNotificationsAsync()
+        {
+            var channel = await PushNotificationChannelManager
+                .CreatePushNotificationChannelForApplicationAsync();
+
+            const string templateBodyWNS = "<toast><visual><binding template=\"ToastText01\"><text id=\"1\">$(messageParam)</text></binding></visual></toast>";
+
+            JObject headers = new JObject();
+            headers["X-WNS-Type"] = "wns/toast";
+
+            JObject templates = new JObject();
+            templates["genericMessage"] = new JObject
+        {
+          {"body", templateBodyWNS},
+          {"headers", headers} // Only needed for WNS & MPNS
+        };
+
+            await TodoItemManager.DefaultManager.CurrentClient.GetPush().RegisterAsync(channel.Uri, templates);
+        }
+
     }
 }

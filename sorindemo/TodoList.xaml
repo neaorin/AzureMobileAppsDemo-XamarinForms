@@ -21,10 +21,9 @@
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Entry x:Name="newItemName"
-                  Placeholder="Item name"  />
-        <StackLayout x:Name="buttonsPanel" Grid.Column="1" Orientation="Horizontal" HorizontalOptions="StartAndExpand">
-          <Button Text="+" MinimumHeightRequest="30" Clicked="OnAdd" />
+        <Entry x:Name="newItemName" Placeholder="Item name" Grid.Column="0"  />
+        <StackLayout x:Name="buttonsPanel" Grid.Column="1" Orientation="Horizontal">
+          <Button Text="+" Clicked="OnAdd" />
           <Button x:Name="login" Text="Login" Clicked="OnLogin"/>
           <Button x:Name="syncButton" Text="Sync" Clicked="OnSyncItems" IsVisible="false"/>
         </StackLayout>
