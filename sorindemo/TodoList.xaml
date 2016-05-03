@@ -48,7 +48,7 @@
     </ListView>
   </Grid>
   <ContentPage.ToolbarItems>
-      <ToolbarItem x:Name="toolbarLogin" Name="Login" Clicked="OnLogin" />
-      <ToolbarItem x:Name="toolbarSync" Name="Sync" Clicked="OnSyncItems"/>
+      <ToolbarItem x:Name="toolbarLogin" Name="Login" Icon="Assets/appbar.lock.png" Activated="OnLogin" Priority="0" Order="Primary" />
+      <ToolbarItem x:Name="toolbarSync" Name="Sync" Icon="Assets/appbar.refresh.png" Activated="OnSyncItems" Priority="1" Order="Primary" />
   </ContentPage.ToolbarItems>
 </ContentPage>

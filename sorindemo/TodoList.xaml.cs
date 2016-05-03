@@ -52,9 +52,9 @@ namespace sorindemo
 
             // Set syncItems to true in order to synchronize the data on startup when running in offline mode
 #if AUTH_ENABLED
-            if (IsAuthenticated)
+            //if (IsAuthenticated)
 #endif
-                await RefreshItems(true, syncItems: false);
+            await RefreshItems(true, syncItems: false);
         }
 
         // Data methods
