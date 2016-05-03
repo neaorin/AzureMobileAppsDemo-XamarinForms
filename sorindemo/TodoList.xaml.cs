@@ -42,7 +42,7 @@ namespace sorindemo
             if (manager.IsOfflineEnabled &&
                 (Device.OS == TargetPlatform.Windows || Device.OS == TargetPlatform.WinPhone))
             {
-                syncButton.IsVisible = true;
+                //syncButton.IsVisible = true;
             }
         }
 
@@ -89,6 +89,8 @@ namespace sorindemo
 
         public async void OnAdd(object sender, EventArgs e)
         {
+            if (String.IsNullOrWhiteSpace(newItemName.Text))
+                return;
             var todo = new TodoItem { Name = newItemName.Text };
             await AddItem(todo);
 
@@ -221,7 +223,7 @@ namespace sorindemo
                     var user = User.GetUserInfo(userdata, provider);
                     await DisplayAlert("Authenticated", $"{user.FullName} is logged in.", "OK");
                     labelUser.Text = user.FullName;
-                    login.IsVisible = false;
+                    //login.IsVisible = false;
                     await RefreshItems(true, syncItems: false);
                 }
             }

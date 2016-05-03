@@ -18,14 +18,12 @@
       <Label x:Name="labelUser" TextColor="#555555" Text="Not logged in" />
       <Grid>
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="*"/>
+          <ColumnDefinition />
+          <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Entry x:Name="newItemName" Placeholder="Item name" Grid.Column="0"  />
-        <StackLayout x:Name="buttonsPanel" Grid.Column="1" Orientation="Horizontal">
+        <StackLayout x:Name="buttonsPanel" Grid.Column="1" Orientation="Horizontal" HorizontalOptions="StartAndExpand">
           <Button Text="+" Clicked="OnAdd" />
-          <Button x:Name="login" Text="Login" Clicked="OnLogin"/>
-          <Button x:Name="syncButton" Text="Sync" Clicked="OnSyncItems" IsVisible="false"/>
         </StackLayout>
       </Grid>
     </StackLayout>
@@ -41,7 +39,7 @@
             </ViewCell.ContextActions>
             <StackLayout HorizontalOptions="StartAndExpand" Orientation="Horizontal" Padding="15,5,0,0">
               <StackLayout Padding="5,0,0,0" VerticalOptions="StartAndExpand" Orientation="Vertical">
-                <Label Text="{Binding Name}"  />
+                <Label Text="{Binding Name}" FontSize="24" />
               </StackLayout>
             </StackLayout>
           </ViewCell>
@@ -49,4 +47,8 @@
       </ListView.ItemTemplate>
     </ListView>
   </Grid>
+  <ContentPage.ToolbarItems>
+      <ToolbarItem x:Name="toolbarLogin" Name="Login" Clicked="OnLogin" />
+      <ToolbarItem x:Name="toolbarSync" Name="Sync" Clicked="OnSyncItems"/>
+  </ContentPage.ToolbarItems>
 </ContentPage>
