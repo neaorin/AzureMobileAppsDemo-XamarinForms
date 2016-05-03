@@ -164,7 +164,11 @@ namespace sorindemo
         {
             using (var scope = new ActivityIndicatorScope(syncIndicator, showActivityIndicator))
             {
-                todoList.ItemsSource = await manager.GetTodoItemsAsync(syncItems);
+                var items = await manager.GetTodoItemsAsync(syncItems);
+                if (items == null)
+                    await DisplayAlert("Error on Refresh", "Could not refresh data - check your network connection.", "OK");
+                else
+                    todoList.ItemsSource = items;
             }
         }
 

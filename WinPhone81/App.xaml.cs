@@ -155,7 +155,7 @@ namespace WinPhone81
             templates["genericMessage"] = new JObject
         {
           {"body", templateBodyWNS},
-          {"headers", headers} // Only needed for WNS & MPNS
+          {"headers", headers} 
         };
 
             await TodoItemManager.DefaultManager.CurrentClient.GetPush().RegisterAsync(channel.Uri, templates);

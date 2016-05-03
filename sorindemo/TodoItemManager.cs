@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.MobileServices;
+using System.Net;
 
 #if OFFLINE_SYNC_ENABLED
 using Microsoft.WindowsAzure.MobileServices.SQLiteStore;
@@ -142,7 +143,7 @@ namespace sorindemo
                 {
                     if (error.OperationKind == MobileServiceTableOperationKind.Update && error.Result != null)
                     {
-                        //Update failed, reverting to server's copy.
+                        //Update failed, reverting to server's copy.                       
                         await error.CancelAndUpdateItemAsync(error.Result);
                     }
                     else
