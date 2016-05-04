@@ -162,6 +162,12 @@ namespace sorindemo
 
         private async Task RefreshItems(bool showActivityIndicator, bool syncItems)
         {
+            if (!Plugin.Connectivity.CrossConnectivity.Current.IsConnected)
+            {
+                await DisplayAlert("Error on Refresh", "Could not refresh data - check your network connection.", "OK");
+                return;
+            }
+
             using (var scope = new ActivityIndicatorScope(syncIndicator, showActivityIndicator))
             {
                 var items = await manager.GetTodoItemsAsync(syncItems);
