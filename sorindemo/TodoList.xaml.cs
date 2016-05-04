@@ -1,5 +1,6 @@
 ﻿#define AUTH_ENABLED
 using Microsoft.WindowsAzure.MobileServices;
+using Microsoft.WindowsAzure.MobileServices.Sync;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
@@ -63,7 +64,7 @@ namespace sorindemo
             try
             {
                 await manager.SaveTaskAsync(item);
-                todoList.ItemsSource = await manager.GetTodoItemsAsync();
+                todoList.ItemsSource = (await manager.GetTodoItemsAsync()).Items;
             }
             catch (Exception ex)
             {
@@ -78,7 +79,7 @@ namespace sorindemo
             {
                 item.Done = true;
                 await manager.SaveTaskAsync(item);
-                todoList.ItemsSource = await manager.GetTodoItemsAsync();
+                todoList.ItemsSource = (await manager.GetTodoItemsAsync()).Items;
             }
             catch (Exception ex)
             {
@@ -170,11 +171,23 @@ namespace sorindemo
 
             using (var scope = new ActivityIndicatorScope(syncIndicator, showActivityIndicator))
             {
-                var items = await manager.GetTodoItemsAsync(syncItems);
-                if (items == null)
+                var result = await manager.GetTodoItemsAsync(syncItems);
+                if (result == null)
                     await DisplayAlert("Error on Refresh", "Could not refresh data - check your network connection.", "OK");
                 else
-                    todoList.ItemsSource = items;
+                {
+                    todoList.ItemsSource = result.Items;
+                    if (result.Errors != null)
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            if (error.OperationKind == MobileServiceTableOperationKind.Update && error.Result != null)
+                            {
+                                await DisplayAlert("Sync Error", $"{error.Item["text"]}: this item has already been completed by someone else.", "OK");
+                            }
+                        }
+                    }
+                }
             }
         }
 

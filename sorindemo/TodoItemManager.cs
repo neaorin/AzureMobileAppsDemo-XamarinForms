@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.MobileServices;
 using System.Net;
+using Newtonsoft.Json.Linq;
 
 #if OFFLINE_SYNC_ENABLED
 using Microsoft.WindowsAzure.MobileServices.SQLiteStore;
@@ -31,7 +32,7 @@ namespace sorindemo
         private TodoItemManager()
         {
             this.client = new MobileServiceClient(
-                Constants.ApplicationURL);
+                Constants.ApplicationURL); 
 
 #if OFFLINE_SYNC_ENABLED
 
@@ -71,21 +72,27 @@ namespace sorindemo
 
         public User UserInfo { get; set; }
 
-        public async Task<ObservableCollection<TodoItem>> GetTodoItemsAsync(bool syncItems = false)
+        public async Task<GetCollectionResult<TodoItem>> GetTodoItemsAsync(bool syncItems = false)
         {
+            IEnumerable<MobileServiceTableOperationError> errors = null;
             try
             {
 #if OFFLINE_SYNC_ENABLED
                 if (syncItems)
                 {
-                    await this.SyncAsync();
+                    errors = await this.SyncAsync();
                 }
 #endif
                 IEnumerable<TodoItem> items = await todoTable
                     .Where(todoItem => !todoItem.Done)
                     .ToEnumerableAsync();
 
-                return new ObservableCollection<TodoItem>(items);
+                return new GetCollectionResult<TodoItem>()
+                {
+                    Items = new ObservableCollection<TodoItem>(items),
+                    Errors = errors
+                };
+                    
             }
             catch (MobileServiceInvalidOperationException msioe)
             {
@@ -113,7 +120,7 @@ namespace sorindemo
         }
 
 #if OFFLINE_SYNC_ENABLED
-        public async Task SyncAsync()
+        public async Task<IEnumerable<MobileServiceTableOperationError>> SyncAsync()
         {
             ReadOnlyCollection<MobileServiceTableOperationError> syncErrors = null;
 
@@ -135,15 +142,14 @@ namespace sorindemo
                 }
             }
 
-            // Simple error/conflict handling. A real application would handle the various errors like network conditions,
-            // server conflicts and others via the IMobileServiceSyncHandler.
+            // do we have any sync errors?
             if (syncErrors != null)
             {
                 foreach (var error in syncErrors)
                 {
                     if (error.OperationKind == MobileServiceTableOperationKind.Update && error.Result != null)
                     {
-                        //Update failed, reverting to server's copy.                       
+                        //Update failed, reverting to server's copy.                                          
                         await error.CancelAndUpdateItemAsync(error.Result);
                     }
                     else
@@ -155,8 +161,16 @@ namespace sorindemo
                     Debug.WriteLine(@"Error executing sync operation. Item: {0} ({1}). Operation discarded.", error.TableName, error.Item["id"]);
                 }
             }
+
+            return syncErrors;
         }
 
 #endif
+    }
+    
+    public class GetCollectionResult<T> 
+    {
+        public ObservableCollection<T> Items { get; set; }
+        public IEnumerable<MobileServiceTableOperationError> Errors { get; set; }
     }
 }
