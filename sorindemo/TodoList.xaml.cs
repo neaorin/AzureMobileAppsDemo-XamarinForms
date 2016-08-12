@@ -1,12 +1,10 @@
 ﻿#define AUTH_ENABLED
 using Microsoft.WindowsAzure.MobileServices;
 using Microsoft.WindowsAzure.MobileServices.Sync;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Windows.UI.Popups;
 using Xamarin.Forms;
 
 namespace sorindemo
