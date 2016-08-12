@@ -27,6 +27,8 @@ namespace sorindemo.iOS
             // For more information, see: http://go.microsoft.com/fwlink/?LinkId=620342
             SQLitePCL.CurrentPlatform.Init();
 
+			App.Init(this);
+
 			LoadApplication (new App ());
 
 			return base.FinishedLaunching (app, options);
