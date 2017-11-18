@@ -84,8 +84,19 @@ namespace sorindemo.Droid
 
         public async Task<MobileServiceUser> Authenticate(MobileServiceAuthenticationProvider provider)
         {
-            var user = await TodoItemManager.DefaultManager.CurrentClient.LoginAsync(this, provider);
-            return user;
+            if (provider == MobileServiceAuthenticationProvider.WindowsAzureActiveDirectory)
+            {
+                return await TodoItemManager.DefaultManager.CurrentClient.LoginAsync(this, provider,
+                      new Dictionary<string, string>
+                          {
+                            { "p", "B2C_1_myPolicy" }
+                          }
+                      );
+            }
+            else
+            {
+                return await TodoItemManager.DefaultManager.CurrentClient.LoginAsync(this, provider);
+            }
         }
 
         // Create a new instance field for this activity.
